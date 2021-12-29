@@ -1,6 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import recordRoutes from './routes/record.js'
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -15,4 +16,5 @@ const db = mongoose.connection;
 db.once('open', () => console.log('Connected to database'));
 
 app.use(express.json());
+app.use('/records', recordRoutes);
 app.listen(PORT, () => console.log('Server is listening!'));
