@@ -119,7 +119,6 @@ export const updateRecord = async (req, res) => {
 
 }
 
-
 export const deleteRecord = async (req, res) => {
     const { id } = req.params;
 
