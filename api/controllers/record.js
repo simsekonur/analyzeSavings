@@ -28,87 +28,74 @@ export const getRecordById = async (req, res) => {
 }
 
 export const createRecord = async (req, res) => {
+    const { isBought, name, quantity, unitCost, totalCommission } = req.body;
+
+    console.log(req.body);
+
     try {
-        let { name, unitCost, quantity, currentPrice, totalPrice, currentTotalPrice, commission, totalCommission, bnbPrice } = req.body;
-
-        // calculate the total price if not given
-        if (totalPrice == null || totalCommission == null) {
-            totalPrice = quantity * unitCost;
-            totalCommission = commission* bnbPrice;
-            currentTotalPrice = currentPrice * quantity;
-        }
-
-        // check whether there exist a record with this name
-        let previousRecord = await Record.findOne({ name });
-
-        if (previousRecord == null) {
-            // create a new record
-            previousRecord = new Record({ name, unitCost, quantity, currentPrice, currentTotalPrice,totalPrice, bnbPrice, commission, totalCommission });            
-        } 
-        // do not create the new record just update this one
-        // by increasing the quantity
-        else {
-
-            // we may buy or sell 
-
-            // you buy 
-            if (quantity > 0) {
-                previousRecord.quantity += quantity;
-                previousRecord.totalPrice += totalPrice;
-                const result = previousRecord.totalPrice / previousRecord.quantity;
-                previousRecord.unitCost = Math.round(result * 100) / 100;
-                
+        let coin = await Record.findOne({ name });
+        if (isBought) {
+            if (coin === null) {
+                coin = new Record({isBought: true, name, quantity, unitCost, totalCommission });
             }
-            
-            // you sell
+    
             else {
-                // quantity will be negative
-                previousRecord.quantity += quantity;
-                previousRecord.totalPrice += previousRecord.unitCost * quantity;
+                coin.totalCommission += totalCommission;
+                const result = (coin.unitCost * coin.quantity) + (unitCost * quantity); 
+                console.log(coin.quantity);
+                console.log(quantity);
+                coin.quantity += quantity;
+                coin.unitCost = Math.round((result / coin.quantity) * 10000) / 10000;
             }
-
-            previousRecord.commission += commission;
-            previousRecord.totalCommission += Math.round(commission * bnbPrice * 100) / 100;
-
         }
-
-        await previousRecord.save();
-        res.json(previousRecord);
-        
+        else {
+            coin.totalCommission += totalCommission;
+            coin.quantity -= quantity;
+        }
+        console.log(coin);
+        await coin.save();
+        res.json(coin);
     }
     catch(err) {
+        console.log(err);
         res.status(400).json({ message: err.message });
-    }
-}
 
+    }    
+}
 
 export const updateRecord = async (req, res) => {
     const { id } = req.params;
 
+    console.log({id});
     try {   
         // First find the record given by id
         let record = await Record.findById(id);
         if (record == null) {
             res.status(404).json({ message: 'Not able to find'});
         }
-        const { name, averagePrice, quantity, totalPrice, commission} = req.body;
-
+        const { name, unitCost, quantity, totalPrice, totalCommission, currentPrice} = req.body;
+        
         if (name) {
             record.name = name;
         }
+        
         if (quantity) {
             record.quantity = quantity;
-            record.totalPrice = Math.round(100 * quantity * record.averagePrice) / 100;
+            record.totalPrice = Math.round(100 * quantity * record.unitCost) / 100;
         }
-        if (averagePrice) {
-            record.averagePrice = averagePrice;
-            record.totalPrice = Math.round(100 * record.quantity * averagePrice) / 100;
+        if (unitCost) {
+            record.unitCost = unitCost;
+            record.totalPrice = Math.round(100 * record.quantity * unitCost) / 100;
+        }
+        if (currentPrice) {
+            record.currentPrice = currentPrice
+            record.totalPrice = currentPrice * record.quantity;
         }
         if (totalPrice) {
             record.totalPrice = totalPrice;
         }
-        if (commission) {
-            record.commission = commission;
+        if (totalCommission) {
+            record.totalCommission = totalCommission;
         }
 
         await record.save();

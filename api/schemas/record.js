@@ -1,43 +1,32 @@
 import mongoose from 'mongoose';
 
 const recordSchema = new mongoose.Schema({
-    name: { 
-        type: String,
+    isBought: { 
+        type: Boolean,
         required: true
     },
-    unitCost: {
-        type: Number,
+    name: { 
+        type: String,
         required: true
     },
     quantity: {
         type: Number,
         required: true
     },
-    currentPrice: {
+    unitCost: {
         type: Number,
         required: true
     },
-    totalPrice: {
-        type: Number,
-        default: function() {
-            return Math.round(this.unitCost * this.quantity * 100) / 100;
-        }
-    },
-    currentTotalPrice: {
-        type: Number,
-    },
-    bnbPrice: {
-        type: Number
-    },
-    commission: {
-        type: Number
-    },
     totalCommission: {
         type: Number,
-        default: function() {
-            return Math.round(this.commission * this.currentBNBPrice * 100) / 100;
-        }
-    }
+        //required: true
+    },
+    currentPrice: {
+        type: Number,
+    },
+    totalPrice: {
+        type: Number,
+    },
 });
 
 export default recordSchema;
