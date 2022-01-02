@@ -3,7 +3,7 @@
 
 Simple full stack application for analyzing savings
 
-Two different application in one full stack application
+Two different applications in one full stack application
 
 # How to run 
 
