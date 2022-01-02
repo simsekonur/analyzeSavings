@@ -13,11 +13,18 @@ const recordSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    currentPrice: {
+        type: Number,
+        required: true
+    },
     totalPrice: {
         type: Number,
         default: function() {
             return Math.round(this.unitCost * this.quantity * 100) / 100;
         }
+    },
+    currentTotalPrice: {
+        type: Number,
     },
     bnbPrice: {
         type: Number

@@ -29,12 +29,13 @@ export const getRecordById = async (req, res) => {
 
 export const createRecord = async (req, res) => {
     try {
-        let { name, unitCost, quantity, totalPrice, commission, totalCommission, bnbPrice } = req.body;
+        let { name, unitCost, quantity, currentPrice, totalPrice, currentTotalPrice, commission, totalCommission, bnbPrice } = req.body;
 
         // calculate the total price if not given
         if (totalPrice == null || totalCommission == null) {
             totalPrice = quantity * unitCost;
             totalCommission = commission* bnbPrice;
+            currentTotalPrice = currentPrice * quantity;
         }
 
         // check whether there exist a record with this name
@@ -42,7 +43,7 @@ export const createRecord = async (req, res) => {
 
         if (previousRecord == null) {
             // create a new record
-            previousRecord = new Record({ name, unitCost, quantity, totalPrice, bnbPrice, commission, totalCommission });            
+            previousRecord = new Record({ name, unitCost, quantity, currentPrice, currentTotalPrice,totalPrice, bnbPrice, commission, totalCommission });            
         } 
         // do not create the new record just update this one
         // by increasing the quantity
